@@ -13,7 +13,6 @@ import java.nio.ByteBuffer;
  * Created by BSDC-ZLS on 2015/3/12.
  */
 public class PlayerThread extends Thread {
-    private MediaExtractor extractor;
     private MediaCodec decoder;
     private Surface surface;
     private String url;
@@ -27,7 +26,7 @@ public class PlayerThread extends Thread {
 
     @Override
     public void run() {
-        toConfig();
+        MediaExtractor extractor = config(surface);
 
         if (decoder == null) {
             Log.e("DecodeActivity", "Can't find video info!");
@@ -77,8 +76,8 @@ public class PlayerThread extends Thread {
         extractor.release();
     }
 
-    private void toConfig() {
-        extractor = new MediaExtractor();
+    private MediaExtractor config(Surface surface) {
+        MediaExtractor extractor = new MediaExtractor();
         try {
             extractor.setDataSource(url);
             for (int i = 0; i < extractor.getTrackCount(); i++) {
@@ -94,6 +93,7 @@ public class PlayerThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return extractor;
     }
 
     private ByteBuffer[] handleOuput(ByteBuffer[] outputBuffers, MediaCodec.BufferInfo info, long startMs) {
