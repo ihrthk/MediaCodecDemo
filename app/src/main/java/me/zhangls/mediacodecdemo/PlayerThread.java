@@ -42,6 +42,9 @@ public class PlayerThread extends Thread {
 
         while (!Thread.interrupted()) {
             if (!isEOS) {
+                /*Returns the index of an input buffer to be filled with valid data
+                 or - 1 if no such buffer is currently available.
+                  */
                 int inIndex = decoder.dequeueInputBuffer(10000);
                 if (inIndex >= 0) {
                     ByteBuffer buffer = inputBuffers[inIndex];
@@ -54,13 +57,15 @@ public class PlayerThread extends Thread {
                         decoder.queueInputBuffer(inIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                         isEOS = true;
                     } else {
+                        // After filling a range of the input buffer at the specified index
+                        // submit it to the component.
                         decoder.queueInputBuffer(inIndex, 0, sampleSize, extractor.getSampleTime(), 0);
+                        // Advance to the next sample.
                         extractor.advance();
                     }
                 }
             }
-            MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
-            outputBuffers = handleOuput(outputBuffers, info, startMs);
+            MediaCodec.BufferInfo info = handleOuput(outputBuffers, startMs, decoder);
 
 
             // All decoded frames have been rendered, we can stop playing now
@@ -87,7 +92,6 @@ public class PlayerThread extends Thread {
                     extractor.selectTrack(i);
                     decoder = MediaCodec.createDecoderByType(mime);
                     decoder.configure(format, surface, null, 0);
-                    break;
                 }
             }
         } catch (IOException e) {
@@ -96,15 +100,17 @@ public class PlayerThread extends Thread {
         return extractor;
     }
 
-    private ByteBuffer[] handleOuput(ByteBuffer[] outputBuffers, MediaCodec.BufferInfo info, long startMs) {
-        int outIndex = decoder.dequeueOutputBuffer(info, 10000);
+    private MediaCodec.BufferInfo handleOuput(ByteBuffer[] outputBuffers, long startMs, MediaCodec mediaCodec) {
+        MediaCodec.BufferInfo info = new MediaCodec.BufferInfo();
+        //Dequeue an output buffer, block at most "timeoutUs" microseconds.
+        int outIndex = mediaCodec.dequeueOutputBuffer(info, 10000);
         switch (outIndex) {
             case MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED:
                 Log.d("DecodeActivity", "INFO_OUTPUT_BUFFERS_CHANGED");
                 outputBuffers = decoder.getOutputBuffers();
                 break;
             case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                Log.d("DecodeActivity", "New format " + decoder.getOutputFormat());
+                Log.d("DecodeActivity", "New format " + mediaCodec.getOutputFormat());
                 break;
             case MediaCodec.INFO_TRY_AGAIN_LATER:
                 Log.d("DecodeActivity", "dequeueOutputBuffer timed out!");
@@ -124,9 +130,10 @@ public class PlayerThread extends Thread {
                         break;
                     }
                 }
-                decoder.releaseOutputBuffer(outIndex, true);
+                // If you are done with a buffer, use this call to return the buffer to the codec.
+                mediaCodec.releaseOutputBuffer(outIndex, true);
                 break;
         }
-        return outputBuffers;
+        return info;
     }
 }
