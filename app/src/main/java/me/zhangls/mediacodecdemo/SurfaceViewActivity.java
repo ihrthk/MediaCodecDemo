@@ -24,18 +24,16 @@ public class SurfaceViewActivity extends Activity implements SurfaceHolder.Callb
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
+        if (mPlayer == null) {
+            String url = getIntent().getStringExtra(MainActivity.URL);
+            mPlayer = new PlayerThread(holder.getSurface(), url);
+            mPlayer.start();
+        }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
-        if (mPlayer == null) {
-            String SAMPLE = Environment.getExternalStorageDirectory() + "/video.mp4";
-            String url = "http://mvvideo2.meitudata.com/5450886dddd8e2048.mp4";
-            mPlayer = new PlayerThread(holder.getSurface(), url);
-            mPlayer.start();
-        }
     }
 
     @Override

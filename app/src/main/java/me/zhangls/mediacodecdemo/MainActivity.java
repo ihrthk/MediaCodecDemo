@@ -13,6 +13,9 @@ import android.view.View;
 public class MainActivity extends Activity {
 
 
+    String SAMPLE = Environment.getExternalStorageDirectory() + "/video.mp4";
+    public static final String URL = "URL";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,11 +27,15 @@ public class MainActivity extends Activity {
     }
 
     public void surface_view(View view) {
-        startActivity(new Intent(this, SurfaceViewActivity.class));
+        Intent intent = new Intent(this, SurfaceViewActivity.class);
+        intent.putExtra(URL, "http://mvvideo2.meitudata.com/5450886dddd8e2048.mp4");
+        startActivity(intent);
     }
 
     public void texture_view(View view) {
-        startActivity(new Intent(this, TextureViewActivity.class));
+        Intent intent = new Intent(this, TextureViewActivity.class);
+        intent.putExtra(URL, "http://mvvideo2.meitudata.com/5450886dddd8e2048.mp4");
+        startActivity(intent);
 
     }
 }

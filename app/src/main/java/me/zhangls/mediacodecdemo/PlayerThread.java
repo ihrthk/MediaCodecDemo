@@ -13,6 +13,8 @@ import java.nio.ByteBuffer;
  * Created by BSDC-ZLS on 2015/3/12.
  */
 public class PlayerThread extends Thread {
+    public static final String TAG = "PlayerThread";
+
     private MediaCodec decoder;
     private Surface surface;
     private String url;
@@ -29,7 +31,7 @@ public class PlayerThread extends Thread {
         MediaExtractor extractor = config(surface);
 
         if (decoder == null) {
-            Log.e("DecodeActivity", "Can't find video info!");
+            Log.e(TAG, "Can't find video info!");
             return;
         }
         decoder.start();
@@ -53,7 +55,7 @@ public class PlayerThread extends Thread {
                         // We shouldn't stop the playback at this point, just pass the EOS
                         // flag to decoder, we will handleOuput it again from the
                         // dequeueOutputBuffer
-                        Log.d("DecodeActivity", "InputBuffer BUFFER_FLAG_END_OF_STREAM");
+                        Log.d(TAG, "InputBuffer BUFFER_FLAG_END_OF_STREAM");
                         decoder.queueInputBuffer(inIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                         isEOS = true;
                     } else {
@@ -70,7 +72,7 @@ public class PlayerThread extends Thread {
 
             // All decoded frames have been rendered, we can stop playing now
             if ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                Log.d("DecodeActivity", "OutputBuffer BUFFER_FLAG_END_OF_STREAM");
+                Log.d(TAG, "OutputBuffer BUFFER_FLAG_END_OF_STREAM");
                 break;
             }
         }
@@ -106,18 +108,18 @@ public class PlayerThread extends Thread {
         int outIndex = mediaCodec.dequeueOutputBuffer(info, 10000);
         switch (outIndex) {
             case MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED:
-                Log.d("DecodeActivity", "INFO_OUTPUT_BUFFERS_CHANGED");
+                Log.d(TAG, "INFO_OUTPUT_BUFFERS_CHANGED");
                 outputBuffers = decoder.getOutputBuffers();
                 break;
             case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                Log.d("DecodeActivity", "New format " + mediaCodec.getOutputFormat());
+                Log.d(TAG, "New format " + mediaCodec.getOutputFormat());
                 break;
             case MediaCodec.INFO_TRY_AGAIN_LATER:
-                Log.d("DecodeActivity", "dequeueOutputBuffer timed out!");
+                Log.d(TAG, "dequeueOutputBuffer timed out!");
                 break;
             default:
                 ByteBuffer buffer = outputBuffers[outIndex];
-                Log.v("DecodeActivity", "We can't use this buffer but render it due to the API limit, " + buffer);
+                Log.v(TAG, "We can't use this buffer but render it due to the API limit, " + buffer);
 
 
                 // We use a very simple clock to keep the video FPS, or the video
