@@ -5,16 +5,4 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:text="surface view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="surface_view" />
-
-    <Button
-        android:text="texture view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="texture_view" />
-
 </LinearLayout>

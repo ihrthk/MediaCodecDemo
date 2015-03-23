@@ -1,29 +1,38 @@
 package me.zhangls.mediacodecdemo;
 
-import android.app.Activity;
+import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.os.Bundle;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
- * Created by BSDC-ZLS on 2015/3/13.
+ * Created by BSDC-ZLS on 2015/3/23.
  */
-public class TextureViewActivity extends Activity implements TextureView.SurfaceTextureListener {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_textureview);
+public class TextureViewStrategy implements VideoStrategy, TextureView.SurfaceTextureListener {
 
-        TextureView textureView = (TextureView) findViewById(R.id.texture_view);
+    private Context context;
+    private SurfaceListener listener;
+
+    public TextureViewStrategy(ViewGroup viewGroup, SurfaceListener listener) {
+        this.context = context;
+        this.listener = listener;
+
+        TextureView textureView = new TextureView(viewGroup.getContext());
         textureView.setSurfaceTextureListener(this);
+        viewGroup.addView(textureView);
+    }
+
+    @Override
+    public View getWidget() {
+        return null;
     }
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         Surface sur = new Surface(surface);
-        String url = getIntent().getStringExtra(MainActivity.URL);
-        new PlayerThread(sur, url).start();
+        listener.onSurface(sur, true);
     }
 
     @Override
